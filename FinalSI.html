@@ -1,0 +1,1786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Software Implementation Final Exam</title>
+    <style>
+    :root {
+        --bg-color: #f8fafc;
+        --text-color: #2d3748;
+        --primary-color: #2a676f;
+        --secondary-color: #a98a50;
+        --card-bg: rgba(255, 255, 255, 0.95);
+        --border-color: rgba(224, 224, 224, 0.5);
+        --option-bg: #f8fafc;
+        --option-hover-bg: #e2e8f0;
+        --quiz-header-bg: linear-gradient(135deg, #2a676f 0%, #3a8893 100%);
+        --correct-bg: #e8f5e9;
+        --correct-border: #43a047;
+        --incorrect-bg: #ffebee;
+        --incorrect-border: #e53935;
+	--gradient-color: rgba(42, 103, 111, 0.03);
+        --background-pattern: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%232a676f' fill-opacity='0.05'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z' /%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    [data-theme="dark"] {
+        --bg-color: #1a202c;
+        --text-color: #e2e8f0;
+        --primary-color: #38b2ac;
+        --secondary-color: #f6ad55;
+        --card-bg: rgba(26, 32, 44, 0.95);
+        --border-color: rgba(74, 85, 104, 0.5);
+        --option-bg: rgba(160, 174, 192, 0.1);
+        --option-hover-bg: rgba(160, 174, 192, 0.2);
+        --quiz-header-bg: linear-gradient(135deg, #2a676f 0%, #3a8893 100%);
+        --correct-bg: #1a3c27;
+        --correct-border: #43a047;
+        --incorrect-bg: #3c1a1d;
+        --incorrect-border: #e53935;
+	--gradient-color: transparent;
+        --background-pattern: none;
+    }
+
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
+    body {
+    background-color: var(--bg-color);
+    background-image: 
+        linear-gradient(to right, var(--gradient-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--gradient-color) 1px, transparent 1px),
+        var(--background-pattern);
+    background-size: 
+        40px 40px,
+        40px 40px,
+        52px 26px;
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+    .quiz-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        border: 1px solid var(--border-color);
+        backdrop-filter: blur(12px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .section-divider {
+            margin: 3rem 0;
+            border: 0;
+            height: 4px;
+            background: var(--primary-color);
+            opacity: 0.2;
+            border-radius: 2px;
+        }
+
+        .section-header {
+            background: var(--quiz-header-bg);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 2.5rem 0;
+            font-size: 1.8rem;
+            font-weight: 700;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(42, 103, 111, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-header::after {
+            content: '📚';
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            opacity: 0.15;
+            font-size: 2.5rem;
+        }
+
+
+    .quiz-container::before {
+        content: '📚🎯💻';
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        font-size: 120px;
+        opacity: 0.05;
+        transform: rotate(15deg);
+        z-index: 0;
+    }
+
+    .quiz-header {
+        text-align: center;
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        color: white;
+        padding: 1.5rem;
+        background: var(--quiz-header-bg);
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(42, 103, 111, 0.2);
+        position: relative;
+        overflow: hidden;
+        transform: translateY(-5px);
+    }
+
+    .quiz-header::after {
+        content: '🧑💻';
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        opacity: 0.15;
+        font-size: 3rem;
+    }
+
+    .controls {
+        text-align: center;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 1rem 2rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 8px;
+        box-shadow: 0 4px 6px rgba(42, 103, 111, 0.1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: 0.5s;
+    }
+
+    .btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(42, 103, 111, 0.2);
+        background: var(--secondary-color);
+    }
+
+    .btn:hover::before {
+        left: 100%;
+    }
+
+    .question {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 15px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: visible;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .question::before {
+        content: '🦦';
+        position: absolute;
+        left: -30px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary-color);
+        font-size: 1.8rem;
+        opacity: 0.8;
+        z-index: 1;
+        transition: all 0.3s ease;
+        pointer-events: none;
+    }
+
+    .question:hover {
+        transform: translateX(10px);
+        border-color: var(--primary-color);
+        box-shadow: 6px 6px 20px rgba(42, 103, 111, 0.1);
+    }
+
+    .question:hover::before {
+        transform: translateY(-50%) rotate(360deg) scale(1.2);
+        left: -35px;
+        color: var(--secondary-color);
+    }
+
+    .options label {
+        display: flex;
+        align-items: center;
+        padding: 1.2rem;
+        margin: 1rem 0;
+        background: var(--option-bg);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        gap: 12px;
+        border: 2px solid transparent;
+        position: relative;
+        z-index: 2;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .options label:hover {
+        background: var(--option-hover-bg);
+        transform: translateX(5px);
+        box-shadow: 4px 4px 12px rgba(42, 103, 111, 0.1);
+    }
+
+    .options input[type="radio"] {
+        margin-left: 1rem;
+        transform: scale(1.4);
+        accent-color: var(--primary-color);
+        cursor: pointer;
+    }
+
+    .answer-box {
+        margin-top: 1rem;
+        padding: 1.2rem;
+        border-radius: 12px;
+        display: none;
+        animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 500;
+        letter-spacing: 0.3px;
+        position: relative;
+        z-index: 2;
+        border-left: 5px solid;
+    }
+
+    .correct {
+        background: var(--correct-bg);
+        border-color: var(--correct-border);
+        color: var(--text-color);
+    }
+
+    .correct::before {
+        content: '✅';
+        margin-right: 10px;
+    }
+
+    .incorrect {
+        background: var(--incorrect-bg);
+        border-color: var(--incorrect-border);
+        color: var(--text-color);
+    }
+
+    .incorrect::before {
+        content: '❌';
+        margin-right: 10px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 600px) {
+        .quiz-container {
+            margin: 1rem;
+            padding: 1.5rem;
+            border-radius: 15px;
+        }
+        
+        .quiz-header {
+            font-size: 1.8rem;
+            padding: 1rem;
+        }
+        
+        .question::before {
+            display: none;
+        }
+        
+        .btn {
+            width: 100%;
+            margin: 0.5rem 0;
+        }
+    }
+</style>
+
+
+
+</head>
+<body>
+    <div class="quiz-container">
+        <div class="quiz-header">
+            Software Implementation Final Exam
+        </div>
+        <div class="controls">
+            <button class="btn" onclick="resetQuiz()"> Reset</button>
+            <button class="btn" onclick="showAllAnswers()"> Show Answers</button>
+            <button class="btn" onclick="hideAllAnswers()"> Hide Answers</button>
+	    <button class="btn" id="themeToggle" onclick="toggleTheme()">🌙 Dark Mode</button>
+        </div>
+
+	
+
+
+	<div class="question">
+    <h3>1. The discipline concerned with all aspects of developing, operating, and maintaining software systems.</h3>
+    <div class="options">
+        <label><input type="radio" name="q1" value="a"> a) Computer Programming</label>
+        <label><input type="radio" name="q1" value="b"> b) Software Engineering</label>
+        <label><input type="radio" name="q1" value="c"> c) Systems Analysis</label>
+        <label><input type="radio" name="q1" value="d"> d) Database Management</label>
+    </div>
+    <div class="answer-box" id="answer1" data-correct-answer="b">Correct Answer: b) Software Engineering</div>
+</div>
+
+<div class="question">
+    <h3>2. A software requirement describing a feature, function, or service the system must provide (input → output).</h3>
+    <div class="options">
+        <label><input type="radio" name="q2" value="a"> a) Functional Requirement</label>
+        <label><input type="radio" name="q2" value="b"> b) Nonfunctional Requirement</label>
+        <label><input type="radio" name="q2" value="c"> c) Technical Requirement</label>
+        <label><input type="radio" name="q2" value="d"> d) Operational Requirement</label>
+    </div>
+    <div class="answer-box" id="answer2" data-correct-answer="a">Correct Answer: a) Functional Requirement</div>
+</div>
+
+<div class="question">
+    <h3>3. A property or constraint of the system such as performance, security, or usability.</h3>
+    <div class="options">
+        <label><input type="radio" name="q3" value="a"> a) Functional Requirement</label>
+        <label><input type="radio" name="q3" value="b"> b) Technical Requirement</label>
+        <label><input type="radio" name="q3" value="c"> c) Nonfunctional Requirement</label>
+        <label><input type="radio" name="q3" value="d"> d) Quality Attribute</label>
+    </div>
+    <div class="answer-box" id="answer3" data-correct-answer="c">Correct Answer: c) Nonfunctional Requirement</div>
+</div>
+
+<div class="question">
+    <h3>4. A process model that proceeds in a linear sequence of phases (requirements → design → implementation → testing → maintenance).</h3>
+    <div class="options">
+        <label><input type="radio" name="q4" value="a"> a) Iterative Model</label>
+        <label><input type="radio" name="q4" value="b"> b) Waterfall Model</label>
+        <label><input type="radio" name="q4" value="c"> c) Spiral Model</label>
+        <label><input type="radio" name="q4" value="d"> d) Agile Model</label>
+    </div>
+    <div class="answer-box" id="answer4" data-correct-answer="b">Correct Answer: b) Waterfall Model</div>
+</div>
+
+<div class="question">
+    <h3>5. A simple early version of the system is built to clarify requirements and gather feedback before full development.</h3>
+    <div class="options">
+        <label><input type="radio" name="q5" value="a"> a) Rapid Application Development</label>
+        <label><input type="radio" name="q5" value="b"> b) Prototyping</label>
+        <label><input type="radio" name="q5" value="c"> c) Incremental Model</label>
+        <label><input type="radio" name="q5" value="d"> d) Beta Release</label>
+    </div>
+    <div class="answer-box" id="answer5" data-correct-answer="b">Correct Answer: b) Prototyping</div>
+</div>
+
+<div class="question">
+    <h3>6. A model of development where each phase is revisited multiple times to address major risks and refine requirements after each iteration.</h3>
+    <div class="options">
+        <label><input type="radio" name="q6" value="a"> a) Waterfall Model</label>
+        <label><input type="radio" name="q6" value="b"> b) Prototyping</label>
+        <label><input type="radio" name="q6" value="c"> c) Spiral Model</label>
+        <label><input type="radio" name="q6" value="d"> d) V-Model</label>
+    </div>
+    <div class="answer-box" id="answer6" data-correct-answer="c">Correct Answer: c) Spiral Model</div>
+</div>
+
+<div class="question">
+    <h3>7. A written description of an interaction between an actor and a system to achieve a goal, including success and alternate flows.</h3>
+    <div class="options">
+        <label><input type="radio" name="q7" value="a"> a) User Story</label>
+        <label><input type="radio" name="q7" value="b"> b) Use Case</label>
+        <label><input type="radio" name="q7" value="c"> c) Requirement Specification</label>
+        <label><input type="radio" name="q7" value="d"> d) Process Flow</label>
+    </div>
+    <div class="answer-box" id="answer7" data-correct-answer="b">Correct Answer: b) Use Case</div>
+</div>
+
+<div class="question">
+    <h3>8. An architecture style where data flows through a series of processing steps, each transforming the input before passing it on.</h3>
+    <div class="options">
+        <label><input type="radio" name="q8" value="a"> a) Pipe-and-Filter Architecture</label>
+        <label><input type="radio" name="q8" value="b"> b) Client-Server Architecture</label>
+        <label><input type="radio" name="q8" value="c"> c) Layered Architecture</label>
+        <label><input type="radio" name="q8" value="d"> d) Microservices Architecture</label>
+    </div>
+    <div class="answer-box" id="answer8" data-correct-answer="a">Correct Answer: a) Pipe-and-Filter Architecture</div>
+</div>
+
+<div class="question">
+    <h3>9. Testing approach that ignores the internal structure of the code, focusing on inputs and outputs only.</h3>
+    <div class="options">
+        <label><input type="radio" name="q9" value="a"> a) White-Box Testing</label>
+        <label><input type="radio" name="q9" value="b"> b) Black-Box Testing</label>
+        <label><input type="radio" name="q9" value="c"> c) Grey-Box Testing</label>
+        <label><input type="radio" name="q9" value="d"> d) Structural Testing</label>
+    </div>
+    <div class="answer-box" id="answer9" data-correct-answer="b">Correct Answer: b) Black-Box Testing</div>
+</div>
+
+<div class="question">
+    <h3>10. Fine-grained testing focused on individual code modules or methods in isolation.</h3>
+    <div class="options">
+        <label><input type="radio" name="q10" value="a"> a) Integration Testing</label>
+        <label><input type="radio" name="q10" value="b"> b) System Testing</label>
+        <label><input type="radio" name="q10" value="c"> c) Regression Testing</label>
+        <label><input type="radio" name="q10" value="d"> d) Unit Testing</label>
+    </div>
+    <div class="answer-box" id="answer10" data-correct-answer="d">Correct Answer: d) Unit Testing</div>
+</div>
+
+<div class="question">
+    <h3>11. In Agile development, requirements are fixed at the very beginning, and no changes are allowed later.</h3>
+    <div class="options">
+        <label><input type="radio" name="q11" value="a"> a) True</label>
+        <label><input type="radio" name="q11" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer11" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>12. Verification checks whether the product meets its stated requirements; Validation checks whether the product meets the customer’s real needs.</h3>
+    <div class="options">
+        <label><input type="radio" name="q12" value="a"> a) True</label>
+        <label><input type="radio" name="q12" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer12" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>13. In the Spiral Model, risk analysis and repeated refinement are key activities in each iteration.</h3>
+    <div class="options">
+        <label><input type="radio" name="q13" value="a"> a) True</label>
+        <label><input type="radio" name="q13" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer13" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>14. A nonfunctional requirement may specify the maximum response time or an uptime guarantee for the system.</h3>
+    <div class="options">
+        <label><input type="radio" name="q14" value="a"> a) True</label>
+        <label><input type="radio" name="q14" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer14" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>15. Pair programming and test-driven development are practices commonly associated with Extreme Programming (XP).</h3>
+    <div class="options">
+        <label><input type="radio" name="q15" value="a"> a) True</label>
+        <label><input type="radio" name="q15" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer15" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>16. In a Use Case, the “actor” refers only to human users, never to external systems.</h3>
+    <div class="options">
+        <label><input type="radio" name="q16" value="a"> a) True</label>
+        <label><input type="radio" name="q16" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer16" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>17. Layered Architecture enforces that each layer communicates only with the layer directly below or above it.</h3>
+    <div class="options">
+        <label><input type="radio" name="q17" value="a"> a) True</label>
+        <label><input type="radio" name="q17" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer17" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>18. Unit tests are typically written by end-users to verify high-level system behavior.</h3>
+    <div class="options">
+        <label><input type="radio" name="q18" value="a"> a) True</label>
+        <label><input type="radio" name="q18" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer18" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>19. Equivalence partitioning is a testing technique that divides input data into categories that are expected to behave similarly.</h3>
+    <div class="options">
+        <label><input type="radio" name="q19" value="a"> a) True</label>
+        <label><input type="radio" name="q19" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer19" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>20. The Prototyping lifecycle model is best suited when the requirements are clear and well-known from the start.</h3>
+    <div class="options">
+        <label><input type="radio" name="q20" value="a"> a) True</label>
+        <label><input type="radio" name="q20" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer20" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>21. What is the Joel Test?</h3>
+    <div class="options">
+        <label><input type="radio" name="q21" value="a"> a) A method to measure code performance</label>
+        <label><input type="radio" name="q21" value="b"> b) A checklist of 12 best practices for software teams</label>
+        <label><input type="radio" name="q21" value="c"> c) A test for coding skills in interviews</label>
+        <label><input type="radio" name="q21" value="d"> d) A tool for automated bug fixing</label>
+    </div>
+    <div class="answer-box" id="answer21" data-correct-answer="b">Correct Answer: b) A checklist of 12 best practices for software teams</div>
+</div>
+
+<div class="question">
+    <h3>22. Which of the following is NOT a component of the Joel Test?</h3>
+    <div class="options">
+        <label><input type="radio" name="q22" value="a"> a) Use of source control</label>
+        <label><input type="radio" name="q22" value="b"> b) One-step build process</label>
+        <label><input type="radio" name="q22" value="c"> c) Hallway usability testing</label>
+        <label><input type="radio" name="q22" value="d"> d) Detailed UI design specifications</label>
+    </div>
+    <div class="answer-box" id="answer22" data-correct-answer="d">Correct Answer: d) Detailed UI design specifications</div>
+</div>
+
+<div class="question">
+    <h3>23. Which SDLC model is characterized by sequential, non-overlapping phases with little room for change?</h3>
+    <div class="options">
+        <label><input type="radio" name="q23" value="a"> a) Agile Model</label>
+        <label><input type="radio" name="q23" value="b"> b) Waterfall Model</label>
+        <label><input type="radio" name="q23" value="c"> c) Spiral Model</label>
+        <label><input type="radio" name="q23" value="d"> d) Prototyping Model</label>
+    </div>
+    <div class="answer-box" id="answer23" data-correct-answer="b">Correct Answer: b) Waterfall Model</div>
+</div>
+
+<div class="question">
+    <h3>24. Which SDLC model is best suited when the requirements are unclear or evolving?</h3>
+    <div class="options">
+        <label><input type="radio" name="q24" value="a"> a) Waterfall Model</label>
+        <label><input type="radio" name="q24" value="b"> b) Prototyping Model</label>
+        <label><input type="radio" name="q24" value="c"> c) V-Model</label>
+        <label><input type="radio" name="q24" value="d"> d) Code and Fix Model</label>
+    </div>
+    <div class="answer-box" id="answer24" data-correct-answer="b">Correct Answer: b) Prototyping Model</div>
+</div>
+
+<div class="question">
+    <h3>25. Which SDLC model emphasizes iterative risk analysis and incremental refinement through spirals?</h3>
+    <div class="options">
+        <label><input type="radio" name="q25" value="a"> a) Agile Model</label>
+        <label><input type="radio" name="q25" value="b"> b) Spiral Model</label>
+        <label><input type="radio" name="q25" value="c"> c) Waterfall Model</label>
+        <label><input type="radio" name="q25" value="d"> d) Staged Delivery Model</label>
+    </div>
+    <div class="answer-box" id="answer25" data-correct-answer="b">Correct Answer: b) Spiral Model</div>
+</div>
+
+<div class="question">
+    <h3>26. Which SDLC model supports shipping the product incrementally by delivering decomposable portions?</h3>
+    <div class="options">
+        <label><input type="radio" name="q26" value="a"> a) Waterfall Model</label>
+        <label><input type="radio" name="q26" value="b"> b) Staged Delivery Model</label>
+        <label><input type="radio" name="q26" value="c"> c) Code and Fix Model</label>
+        <label><input type="radio" name="q26" value="d"> d) Spiral Model</label>
+    </div>
+    <div class="answer-box" id="answer26" data-correct-answer="b">Correct Answer: b) Staged Delivery Model</div>
+</div>
+
+<div class="question">
+    <h3>27. According to the Agile Manifesto, which value is given higher priority?</h3>
+    <div class="options">
+        <label><input type="radio" name="q27" value="a"> a) Processes and tools over individuals and interactions</label>
+        <label><input type="radio" name="q27" value="b"> b) Comprehensive documentation over working software</label>
+        <label><input type="radio" name="q27" value="c"> c) Customer collaboration over contract negotiation</label>
+        <label><input type="radio" name="q27" value="d"> d) Following a plan over responding to change</label>
+    </div>
+    <div class="answer-box" id="answer27" data-correct-answer="c">Correct Answer: c) Customer collaboration over contract negotiation</div>
+</div>
+
+<div class="question">
+    <h3>28. Which agile practice involves a short daily meeting to discuss progress and obstacles?</h3>
+    <div class="options">
+        <label><input type="radio" name="q28" value="a"> a) Sprint Retrospective</label>
+        <label><input type="radio" name="q28" value="b"> b) Daily Stand-up</label>
+        <label><input type="radio" name="q28" value="c"> c) Pair Programming</label>
+        <label><input type="radio" name="q28" value="d"> d) Backlog Refinement</label>
+    </div>
+    <div class="answer-box" id="answer28" data-correct-answer="b">Correct Answer: b) Daily Stand-up</div>
+</div>
+
+<div class="question">
+    <h3>29. In agile development, which practice involves two developers working together at one workstation?</h3>
+    <div class="options">
+        <label><input type="radio" name="q29" value="a"> a) Test-Driven Development</label>
+        <label><input type="radio" name="q29" value="b"> b) Pair Programming</label>
+        <label><input type="radio" name="q29" value="c"> c) Code Refactoring</label>
+        <label><input type="radio" name="q29" value="d"> d) Continuous Integration</label>
+    </div>
+    <div class="answer-box" id="answer29" data-correct-answer="b">Correct Answer: b) Pair Programming</div>
+</div>
+
+<div class="question">
+    <h3>30. What is a key goal of requirements engineering?</h3>
+    <div class="options">
+        <label><input type="radio" name="q30" value="a"> a) To specify what the system should do without prescribing how</label>
+        <label><input type="radio" name="q30" value="b"> b) To select the programming language for implementation</label>
+        <label><input type="radio" name="q30" value="c"> c) To design detailed user interface layouts</label>
+        <label><input type="radio" name="q30" value="d"> d) To develop the system architecture</label>
+    </div>
+    <div class="answer-box" id="answer30" data-correct-answer="a">Correct Answer: a) To specify what the system should do without prescribing how</div>
+</div>
+
+<div class="question">
+    <h3>31. Which elicitation technique involves directly observing users in their work environment?</h3>
+    <div class="options">
+        <label><input type="radio" name="q31" value="a"> a) Surveys</label>
+        <label><input type="radio" name="q31" value="b"> b) Interviews</label>
+        <label><input type="radio" name="q31" value="c"> c) Observation</label>
+        <label><input type="radio" name="q31" value="d"> d) Brainstorming</label>
+    </div>
+    <div class="answer-box" id="answer31" data-correct-answer="c">Correct Answer: c) Observation</div>
+</div>
+
+<div class="question">
+    <h3>32. In requirements specification, why should you state “what” rather than “how”?</h3>
+    <div class="options">
+        <label><input type="radio" name="q32" value="a"> a) To ensure a detailed implementation plan is provided</label>
+        <label><input type="radio" name="q32" value="b"> b) To focus on defining user needs without constraining the solution</label>
+        <label><input type="radio" name="q32" value="c"> c) To specify the technology to be used</label>
+        <label><input type="radio" name="q32" value="d"> d) To document internal algorithms</label>
+    </div>
+    <div class="answer-box" id="answer32" data-correct-answer="b">Correct Answer: b) To focus on defining user needs without constraining the solution</div>
+</div>
+
+<div class="question">
+    <h3>33. Which element is essential in a use case description?</h3>
+    <div class="options">
+        <label><input type="radio" name="q33" value="a"> a) Detailed source code</label>
+        <label><input type="radio" name="q33" value="b"> b) Actor and goal</label>
+        <label><input type="radio" name="q33" value="c"> c) Graphical user interface layout</label>
+        <label><input type="radio" name="q33" value="d"> d) Database schema</label>
+    </div>
+    <div class="answer-box" id="answer33" data-correct-answer="b">Correct Answer: b) Actor and goal</div>
+</div>
+
+<div class="question">
+    <h3>34. In a formal use case, what does the "precondition" specify?</h3>
+    <div class="options">
+        <label><input type="radio" name="q34" value="a"> a) The expected outcome of the use case</label>
+        <label><input type="radio" name="q34" value="b"> b) The state of the system before the use case begins</label>
+        <label><input type="radio" name="q34" value="c"> c) The error handling strategy</label>
+        <label><input type="radio" name="q34" value="d"> d) The design of the user interface</label>
+    </div>
+    <div class="answer-box" id="answer34" data-correct-answer="b">Correct Answer: b) The state of the system before the use case begins</div>
+</div>
+
+<div class="question">
+    <h3>35. Which is an advantage of using use cases for requirements?</h3>
+    <div class="options">
+        <label><input type="radio" name="q35" value="a"> a) They require detailed technical specifications</label>
+        <label><input type="radio" name="q35" value="b"> b) They capture user interactions and outline functional requirements</label>
+        <label><input type="radio" name="q35" value="c"> c) They eliminate the need for further documentation</label>
+        <label><input type="radio" name="q35" value="d"> d) They specify internal module designs</label>
+    </div>
+    <div class="answer-box" id="answer35" data-correct-answer="b">Correct Answer: b) They capture user interactions and outline functional requirements</div>
+</div>
+
+<div class="question">
+    <h3>36. The software architecture focuses on high-level structure and component relationships, while design focuses on implementation details.</h3>
+    <div class="options">
+        <label><input type="radio" name="q36" value="a"> a) True</label>
+        <label><input type="radio" name="q36" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer36" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>37. Which architectural pattern is characterized by a central server managing requests from multiple clients?</h3>
+    <div class="options">
+        <label><input type="radio" name="q37" value="a"> a) Layered Architecture</label>
+        <label><input type="radio" name="q37" value="b"> b) Pipe-and-Filter Architecture</label>
+        <label><input type="radio" name="q37" value="c"> c) Client-Server Architecture</label>
+        <label><input type="radio" name="q37" value="d"> d) MVC Architecture</label>
+    </div>
+    <div class="answer-box" id="answer37" data-correct-answer="c">Correct Answer: c) Client-Server Architecture</div>
+</div>
+
+<div class="question">
+    <h3>38. In a layered architecture, which statement is true?</h3>
+    <div class="options">
+        <label><input type="radio" name="q38" value="a"> a) Layers can bypass each other to share data directly</label>
+        <label><input type="radio" name="q38" value="b"> b) Each layer provides services to the layer directly above it</label>
+        <label><input type="radio" name="q38" value="c"> c) The bottom layer handles presentation logic</label>
+        <label><input type="radio" name="q38" value="d"> d) All layers communicate only with the user interface</label>
+    </div>
+    <div class="answer-box" id="answer38" data-correct-answer="b">Correct Answer: b) Each layer provides services to the layer directly above it</div>
+</div>
+
+<div class="question">
+    <h3>39. Which architectural pattern separates an application into Model, View, and Controller components?</h3>
+    <div class="options">
+        <label><input type="radio" name="q39" value="a"> a) Client-Server Architecture</label>
+        <label><input type="radio" name="q39" value="b"> b) Microservices Architecture</label>
+        <label><input type="radio" name="q39" value="c"> c) MVC Architecture</label>
+        <label><input type="radio" name="q39" value="d"> d) Layered Architecture</label>
+    </div>
+    <div class="answer-box" id="answer39" data-correct-answer="c">Correct Answer: c) MVC Architecture</div>
+</div>
+
+<div class="question">
+    <h3>40. Which type of testing involves executing the program with selected inputs to observe outputs?</h3>
+    <div class="options">
+        <label><input type="radio" name="q40" value="a"> a) Static Testing</label>
+        <label><input type="radio" name="q40" value="b"> b) Dynamic Testing</label>
+        <label><input type="radio" name="q40" value="c"> c) Formal Verification</label>
+        <label><input type="radio" name="q40" value="d"> d) Code Inspection</label>
+    </div>
+    <div class="answer-box" id="answer40" data-correct-answer="b">Correct Answer: b) Dynamic Testing</div>
+</div>
+
+<div class="question">
+    <h3>41. Which best describes Test-Driven Development (TDD)?</h3>
+    <div class="options">
+        <label><input type="radio" name="q41" value="a"> a) Writing production code before tests</label>
+        <label><input type="radio" name="q41" value="b"> b) Writing tests first, ensuring they fail, then writing code to pass them</label>
+        <label><input type="radio" name="q41" value="c"> c) Relying solely on manual testing after development</label>
+        <label><input type="radio" name="q41" value="d"> d) Developing without any tests until final integration</label>
+    </div>
+    <div class="answer-box" id="answer41" data-correct-answer="b">Correct Answer: b) Writing tests first, ensuring they fail, then writing code to pass them</div>
+</div>
+
+<div class="question">
+    <h3>42. What is an advantage of conducting code inspections (reviews) over dynamic testing?</h3>
+    <div class="options">
+        <label><input type="radio" name="q42" value="a"> a) They can automatically fix defects</label>
+        <label><input type="radio" name="q42" value="b"> b) They identify defects in design and documentation early</label>
+        <label><input type="radio" name="q42" value="c"> c) They guarantee that the software is bug-free</label>
+        <label><input type="radio" name="q42" value="d"> d) They require no human involvement</label>
+    </div>
+    <div class="answer-box" id="answer42" data-correct-answer="b">Correct Answer: b) They identify defects in design and documentation early</div>
+</div>
+
+<div class="question">
+    <h3>43. Why is source control essential in software development?</h3>
+    <div class="options">
+        <label><input type="radio" name="q43" value="a"> a) It automatically writes code for developers</label>
+        <label><input type="radio" name="q43" value="b"> b) It tracks changes, manages versions, and enables rollbacks</label>
+        <label><input type="radio" name="q43" value="c"> c) It prevents bugs from ever occurring</label>
+        <label><input type="radio" name="q43" value="d"> d) It is used only for archiving final products</label>
+    </div>
+    <div class="answer-box" id="answer43" data-correct-answer="b">Correct Answer: b) It tracks changes, manages versions, and enables rollbacks</div>
+</div>
+
+<div class="question">
+    <h3>44. What is the primary benefit of maintaining an up-to-date bug database?</h3>
+    <div class="options">
+        <label><input type="radio" name="q44" value="a"> a) It removes the need for further testing</label>
+        <label><input type="radio" name="q44" value="b"> b) It provides historical data to help prioritize and fix defects</label>
+        <label><input type="radio" name="q44" value="c"> c) It automates the debugging process</label>
+        <label><input type="radio" name="q44" value="d"> d) It allows developers to work in isolation</label>
+    </div>
+    <div class="answer-box" id="answer44" data-correct-answer="b">Correct Answer: b) It provides historical data to help prioritize and fix defects</div>
+</div>
+
+<div class="question">
+    <h3>45. In the context of the Joel Test, what does a “one-step build” refer to?</h3>
+    <div class="options">
+        <label><input type="radio" name="q45" value="a"> a) A build process that requires several manual steps</label>
+        <label><input type="radio" name="q45" value="b"> b) An automated build that compiles, tests, and packages the software with a single command</label>
+        <label><input type="radio" name="q45" value="c"> c) A process where builds are initiated by each developer individually</label>
+        <label><input type="radio" name="q45" value="d"> d) A build that only compiles the code without testing</label>
+    </div>
+    <div class="answer-box" id="answer45" data-correct-answer="b">Correct Answer: b) An automated build that compiles, tests, and packages the software with a single command</div>
+</div>
+
+<div class="question">
+    <h3>46. Which of the following is NOT an objective of Quality Assurance (QA) in software engineering?</h3>
+    <div class="options">
+        <label><input type="radio" name="q46" value="a"> a) Measuring and improving product quality</label>
+        <label><input type="radio" name="q46" value="b"> b) Detecting and fixing defects before release</label>
+        <label><input type="radio" name="q46" value="c"> c) Replacing the need for dynamic testing</label>
+        <label><input type="radio" name="q46" value="d"> d) Ensuring the software conforms to requirements</label>
+    </div>
+    <div class="answer-box" id="answer46" data-correct-answer="c">Correct Answer: c) Replacing the need for dynamic testing</div>
+</div>
+
+<div class="question">
+    <h3>47. What is the primary purpose of inspections and reviews in software testing?</h3>
+    <div class="options">
+        <label><input type="radio" name="q47" value="a"> a) To execute the software with test cases</label>
+        <label><input type="radio" name="q47" value="b"> b) To have human reviewers examine artifacts for defects</label>
+        <label><input type="radio" name="q47" value="c"> c) To automatically generate test cases</label>
+        <label><input type="radio" name="q47" value="d"> d) To replace the need for unit testing</label>
+    </div>
+    <div class="answer-box" id="answer47" data-correct-answer="b">Correct Answer: b) To have human reviewers examine artifacts for defects</div>
+</div>
+
+<div class="question">
+    <h3>48. Agile focuses on long-term planning instead of adapting to changes.</h3>
+    <div class="options">
+        <label><input type="radio" name="q48" value="a"> a) True</label>
+        <label><input type="radio" name="q48" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer48" data-correct-answer="b|Agile is based on flexibility and quick response to changes.">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>49. What is a key principle of Agile models?</h3>
+    <div class="options">
+        <label><input type="radio" name="q49" value="a"> a) No changes in requirements</label>
+        <label><input type="radio" name="q49" value="b"> b) Focus on simplicity, excellence, and continuous testing</label>
+        <label><input type="radio" name="q49" value="c"> c) Delivering the entire product at once</label>
+        <label><input type="radio" name="q49" value="d"> d) Avoiding incremental delivery</label>
+    </div>
+    <div class="answer-box" id="answer49" data-correct-answer="b">Correct Answer: b) Focus on simplicity, excellence, and continuous testing</div>
+</div>
+
+<div class="question">
+    <h3>50. Agile software development is a general term for frameworks and practices outlined in the Agile Manifesto.</h3>
+    <div class="options">
+        <label><input type="radio" name="q50" value="a"> a) True</label>
+        <label><input type="radio" name="q50" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer50" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>51. Extreme Programming (XP) allows requirements to change at any time during development.</h3>
+    <div class="options">
+        <label><input type="radio" name="q51" value="a"> a) True</label>
+        <label><input type="radio" name="q51" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer51" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>52. What is the main purpose of Scrum?</h3>
+    <div class="options">
+        <label><input type="radio" name="q52" value="a"> a) Write code faster</label>
+        <label><input type="radio" name="q52" value="b"> b) Manage software projects flexibly</label>
+        <label><input type="radio" name="q52" value="c"> c) Focus only on testing</label>
+        <label><input type="radio" name="q52" value="d"> d) Avoid team collaboration</label>
+    </div>
+    <div class="answer-box" id="answer52" data-correct-answer="b">Correct Answer: b) Manage software projects flexibly</div>
+</div>
+
+<div class="question">
+    <h3>53. Daily Standup is a long meeting that lasts more than an hour.</h3>
+    <div class="options">
+        <label><input type="radio" name="q53" value="a"> a) True</label>
+        <label><input type="radio" name="q53" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer53" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>54. Product Backlog in Scrum is a list of all tasks needed for the project.</h3>
+    <div class="options">
+        <label><input type="radio" name="q54" value="a"> a) True</label>
+        <label><input type="radio" name="q54" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer54" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>55. What is the typical duration of a Sprint in Scrum?</h3>
+    <div class="options">
+        <label><input type="radio" name="q55" value="a"> a) One week</label>
+        <label><input type="radio" name="q55" value="b"> b) 2-4 weeks</label>
+        <label><input type="radio" name="q55" value="c"> c) Two months</label>
+        <label><input type="radio" name="q55" value="d"> d) One day</label>
+    </div>
+    <div class="answer-box" id="answer55" data-correct-answer="b">Correct Answer: b) 2-4 weeks</div>
+</div>
+
+<div class="question">
+    <h3>56. What are the three elements included in the project management triangle?</h3>
+    <div class="options">
+        <label><input type="radio" name="q56" value="a"> a) Quality, Time, Customers</label>
+        <label><input type="radio" name="q56" value="b"> b) Resources, Time, Scope/Features</label>
+        <label><input type="radio" name="q56" value="c"> c) Time, Testing, Design</label>
+        <label><input type="radio" name="q56" value="d"> d) Quality, Resources, Cost</label>
+    </div>
+    <div class="answer-box" id="answer56" data-correct-answer="b">Correct Answer: b) Resources, Time, Scope/Features</div>
+</div>
+
+<div class="question">
+    <h3>57. Which of the following is NOT a traditional SDLC model?</h3>
+    <div class="options">
+        <label><input type="radio" name="q57" value="a"> a) Waterfall</label>
+        <label><input type="radio" name="q57" value="b"> b) Spiral</label>
+        <label><input type="radio" name="q57" value="c"> c) Scrum</label>
+        <label><input type="radio" name="q57" value="d"> d) Prototyping</label>
+    </div>
+    <div class="answer-box" id="answer57" data-correct-answer="c">Correct Answer: c) Scrum</div>
+</div>
+
+<div class="question">
+    <h3>58. What is the main reason projects succeed?</h3>
+    <div class="options">
+        <label><input type="radio" name="q58" value="a"> a) User involvement</label>
+        <label><input type="radio" name="q58" value="b"> b) Big budgets</label>
+        <label><input type="radio" name="q58" value="c"> c) Strong tools</label>
+        <label><input type="radio" name="q58" value="d"> d) Fast timelines</label>
+    </div>
+    <div class="answer-box" id="answer58" data-correct-answer="a">Correct Answer: a) User involvement</div>
+</div>
+
+<div class="question">
+    <h3>59. Easy access to end users helps rapid-development projects succeed.</h3>
+    <div class="options">
+        <label><input type="radio" name="q59" value="a"> a) True</label>
+        <label><input type="radio" name="q59" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer59" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>60. What do Behavioral (user-visible) requirements focus on?</h3>
+    <div class="options">
+        <label><input type="radio" name="q60" value="a"> a) Flexibility and maintainability</label>
+        <label><input type="radio" name="q60" value="b"> b) Features, performance, and security</label>
+        <label><input type="radio" name="q60" value="c"> c) Testing infrastructure</label>
+        <label><input type="radio" name="q60" value="d"> d) Programming languages</label>
+    </div>
+    <div class="answer-box" id="answer60" data-correct-answer="b">Correct Answer: b) Features, performance, and security</div>
+</div>
+
+<div class="question">
+    <h3>61. Feature creep refers to the gradual addition of features that go beyond what was originally needed.</h3>
+    <div class="options">
+        <label><input type="radio" name="q61" value="a"> a) True</label>
+        <label><input type="radio" name="q61" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer61" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>62. Focusing on customer needs is a common mistake in gathering requirements.</h3>
+    <div class="options">
+        <label><input type="radio" name="q62" value="a"> a) True</label>
+        <label><input type="radio" name="q62" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer62" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>63. A description of a person who is representative of a population using the system.</h3>
+    <div class="options">
+        <label><input type="radio" name="q63" value="a"> a) Actor</label>
+        <label><input type="radio" name="q63" value="b"> b) Persona</label>
+        <label><input type="radio" name="q63" value="c"> c) Use case</label>
+        <label><input type="radio" name="q63" value="d"> d) Scenario</label>
+    </div>
+    <div class="answer-box" id="answer63" data-correct-answer="b">Correct Answer: b) Persona</div>
+</div>
+
+<div class="question">
+    <h3>64. Which part of Model-View-Controller (MVC) architecture handles user input and updates the system?</h3>
+    <div class="options">
+        <label><input type="radio" name="q64" value="a"> a) Model</label>
+        <label><input type="radio" name="q64" value="b"> b) View</label>
+        <label><input type="radio" name="q64" value="c"> c) Controller</label>
+        <label><input type="radio" name="q64" value="d"> d) None of the above</label>
+    </div>
+    <div class="answer-box" id="answer64" data-correct-answer="c">Correct Answer: c) Controller</div>
+</div>
+
+<div class="question">
+    <h3>65. Software Engineering includes specifying, designing, developing, and maintaining.</h3>
+    <div class="options">
+        <label><input type="radio" name="q65" value="a"> a) True</label>
+        <label><input type="radio" name="q65" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer65" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>66. A score of 10 or fewer on the Joel Test indicates a good software team.</h3>
+    <div class="options">
+        <label><input type="radio" name="q66" value="a"> a) True</label>
+        <label><input type="radio" name="q66" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer66" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>67. Source control allows multiple developers to work on the same project.</h3>
+    <div class="options">
+        <label><input type="radio" name="q67" value="a"> a) True</label>
+        <label><input type="radio" name="q67" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer67" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>68. A one-step build is the same as compiling code manually.</h3>
+    <div class="options">
+        <label><input type="radio" name="q68" value="a"> a) True</label>
+        <label><input type="radio" name="q68" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer68" data-correct-answer="b">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>69. The "Code and Fix" model is sometimes applicable for small projects or prototypes.</h3>
+    <div class="options">
+        <label><input type="radio" name="q69" value="a"> a) True</label>
+        <label><input type="radio" name="q69" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer69" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>70. Thrashing means doing work and making progress.</h3>
+    <div class="options">
+        <label><input type="radio" name="q70" value="a"> a) True</label>
+        <label><input type="radio" name="q70" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer70" data-correct-answer="b|Thrashing means doing a lot of work but not making progress.">Correct Answer: b) False</div>
+</div>
+
+<div class="question">
+    <h3>71. A structured SDLC helps teams track progress and avoid major mistakes.</h3>
+    <div class="options">
+        <label><input type="radio" name="q71" value="a"> a) True</label>
+        <label><input type="radio" name="q71" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer71" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>72. What is a key characteristic of the Waterfall model?</h3>
+    <div class="options">
+        <label><input type="radio" name="q72" value="a"> a) Top-down approach</label>
+        <label><input type="radio" name="q72" value="b"> b) Sequential, non-overlapping steps</label>
+        <label><input type="radio" name="q72" value="c"> c) Most steps result in a final document</label>
+        <label><input type="radio" name="q72" value="d"> d) All of the above</label>
+    </div>
+    <div class="answer-box" id="answer72" data-correct-answer="d">Correct Answer: d) All of the above</div>
+</div>
+
+<div class="question">
+    <h3>73. Which testing approach analyzes the internal structure, logic, and code implementation of a program?</h3>
+    <div class="options">
+        <label><input type="radio" name="q73" value="a"> a) Black-Box Testing</label>
+        <label><input type="radio" name="q73" value="b"> b) Grey-Box Testing</label>
+        <label><input type="radio" name="q73" value="c"> c) White-Box Testing</label>
+        <label><input type="radio" name="q73" value="d"> d) Functional Testing</label>
+    </div>
+    <div class="answer-box" id="answer73" data-correct-answer="c">Correct Answer: c) White-Box Testing</div>
+</div>
+
+<div class="question">
+    <h3>74. Which process focuses on measuring and improving the overall quality of both the product and the process?</h3>
+    <div class="options">
+        <label><input type="radio" name="q74" value="a"> a) Quality Control (QC)</label>
+        <label><input type="radio" name="q74" value="b"> b) Software Testing</label>
+        <label><input type="radio" name="q74" value="c"> c) Quality Assurance (QA)</label>
+        <label><input type="radio" name="q74" value="d"> d) Debugging</label>
+    </div>
+    <div class="answer-box" id="answer74" data-correct-answer="c">Correct Answer: c) Quality Assurance (QA)</div>
+</div>
+
+<div class="question">
+    <h3>75. Which of the following is responsible for verifying product quality and detecting faults?</h3>
+    <div class="options">
+        <label><input type="radio" name="q75" value="a"> a) Software Development</label>
+        <label><input type="radio" name="q75" value="b"> b) Quality Control (QC)</label>
+        <label><input type="radio" name="q75" value="c"> c) Quality Assurance (QA)</label>
+        <label><input type="radio" name="q75" value="d"> d) Code Review</label>
+    </div>
+    <div class="answer-box" id="answer75" data-correct-answer="b">Correct Answer: b) Quality Control (QC)</div>
+</div>
+
+<div class="question">
+    <h3>76. Which process involves checking if the software conforms to its specified requirements?</h3>
+    <div class="options">
+        <label><input type="radio" name="q76" value="a"> a) Validation</label>
+        <label><input type="radio" name="q76" value="b"> b) Debugging</label>
+        <label><input type="radio" name="q76" value="c"> c) Verification</label>
+        <label><input type="radio" name="q76" value="d"> d) Static Analysis</label>
+    </div>
+    <div class="answer-box" id="answer76" data-correct-answer="c">Correct Answer: c) Verification</div>
+</div>
+
+<div class="question">
+    <h3>77. Which process ensures that the software meets the user's needs and expectations?</h3>
+    <div class="options">
+        <label><input type="radio" name="q77" value="a"> a) Verification</label>
+        <label><input type="radio" name="q77" value="b"> b) Testing</label>
+        <label><input type="radio" name="q77" value="c"> c) Validation</label>
+        <label><input type="radio" name="q77" value="d"> d) Code Review</label>
+    </div>
+    <div class="answer-box" id="answer77" data-correct-answer="c">Correct Answer: c) Validation</div>
+</div>
+
+<div class="question">
+    <h3>78. Which of the following best describes a fault in a software system?</h3>
+    <div class="options">
+        <label><input type="radio" name="q78" value="a"> a) A mistake made by a programmer that causes incorrect logic</label>
+        <label><input type="radio" name="q78" value="b"> b) A condition that may cause a failure in the system</label>
+        <label><input type="radio" name="q78" value="c"> c) The inability of the system to perform a function according to its spec</label>
+        <label><input type="radio" name="q78" value="d"> d) An error introduced during the design phase</label>
+    </div>
+    <div class="answer-box" id="answer78" data-correct-answer="b">Correct Answer: b) A condition that may cause a failure in the system</div>
+</div>
+
+<div class="question">
+    <h3>79. Which term describes the inability of a system to perform a function according to its specifications due to a fault?</h3>
+    <div class="options">
+        <label><input type="radio" name="q79" value="a"> a) Error</label>
+        <label><input type="radio" name="q79" value="b"> b) Failure</label>
+        <label><input type="radio" name="q79" value="c"> c) Defect</label>
+        <label><input type="radio" name="q79" value="d"> d) Fault</label>
+    </div>
+    <div class="answer-box" id="answer79" data-correct-answer="b">Correct Answer: b) Failure</div>
+</div>
+
+<div class="question">
+    <h3>80. An error is a mistake made by a programmer or software engineer that can cause a fault and in turn may lead to a failure.</h3>
+    <div class="options">
+        <label><input type="radio" name="q80" value="a"> a) True</label>
+        <label><input type="radio" name="q80" value="b"> b) False</label>
+    </div>
+    <div class="answer-box" id="answer80" data-correct-answer="a">Correct Answer: a) True</div>
+</div>
+
+<div class="question">
+    <h3>81. What is the primary purpose of Unit Testing?</h3>
+    <div class="options">
+        <label><input type="radio" name="q81" value="a"> a) To test the entire system after integration</label>
+        <label><input type="radio" name="q81" value="b"> b) To test each individual unit of code separately</label>
+        <label><input type="radio" name="q81" value="c"> c) To evaluate system performance under load</label>
+        <label><input type="radio" name="q81" value="d"> d) To check the user interface design</label>
+    </div>
+    <div class="answer-box" id="answer81" data-correct-answer="b">Correct Answer: b) To test each individual unit of code separately</div>
+</div>
+
+<div class="question">
+    <h3>82. What is the purpose of Path Analysis?</h3>
+    <div class="options">
+        <label><input type="radio" name="q82" value="a"> a) To test all possible user inputs</label>
+        <label><input type="radio" name="q82" value="b"> b) To analyze the number of paths in a program and decide which ones to test</label>
+        <label><input type="radio" name="q82" value="c"> c) To verify the system's overall user experience</label>
+        <label><input type="radio" name="q82" value="d"> d) To focus only on boundary value cases</label>
+    </div>
+    <div class="answer-box" id="answer82" data-correct-answer="b">Correct Answer: b) To analyze the number of paths in a program and decide which ones to test</div>
+</div>
+
+<div class="question">
+    <h3>83. Which of the following is an advantage of inspections over testing?</h3>
+    <div class="options">
+        <label><input type="radio" name="q83" value="a"> a) Finds errors cheaper, but correcting them is expensive</label>
+        <label><input type="radio" name="q83" value="b"> b) Catches defects late, after implementation</label>
+        <label><input type="radio" name="q83" value="c"> c) Helps disseminate knowledge about the project and best practices</label>
+        <label><input type="radio" name="q83" value="d"> d) Can only be applied to code</label>
+    </div>
+    <div class="answer-box" id="answer83" data-correct-answer="c">Correct Answer: c) Helps disseminate knowledge about the project and best practices</div>
+</div>
+
+<hr class="section-divider">
+<div class="section-header">Midterm 1 Questions (1-20)</div>
+<div class="question">
+    <h3>1. The main drawback of the ________ model is the difficulty of accommodating change after the process is underway.</h3>
+    <div class="options">
+        <label><input type="radio" name="q84" value="a"> a) Incremental</label>
+        <label><input type="radio" name="q84" value="b"> b) Waterfall</label>
+        <label><input type="radio" name="q84" value="c"> c) Reuse</label>
+        <label><input type="radio" name="q84" value="d"> d) None of the above</label>
+    </div>
+    <div class="answer-box" id="answer84" data-correct-answer="b">Correct Answer: b) Waterfall</div>
+</div>
+
+<div class="question">
+    <h3>2. A __________ is an initial version of a system used to demonstrate concepts and try out design options.</h3>
+    <div class="options">
+        <label><input type="radio" name="q85" value="a"> a) Complete system</label>
+        <label><input type="radio" name="q85" value="b"> b) Prototype</label>
+        <label><input type="radio" name="q85" value="c"> c) Beta release</label>
+        <label><input type="radio" name="q85" value="d"> d) None of the above</label>
+    </div>
+    <div class="answer-box" id="answer85" data-correct-answer="b">Correct Answer: b) Prototype</div>
+</div>
+
+<div class="question">
+    <h3>3. ___________ is where you identify the overall structure of the system and its principal components.</h3>
+    <div class="options">
+        <label><input type="radio" name="q86" value="a"> a) Architectural Events</label>
+        <label><input type="radio" name="q86" value="b"> b) System Architecture</label>
+        <label><input type="radio" name="q86" value="c"> c) System Implementation</label>
+        <label><input type="radio" name="q86" value="d"> d) None of the Above</label>
+    </div>
+    <div class="answer-box" id="answer86" data-correct-answer="b">Correct Answer: b) System Architecture</div>
+</div>
+
+<div class="question">
+    <h3>4. Chang is working on “How will this system work?”. What SDLC phase is he in?</h3>
+    <div class="options">
+        <label><input type="radio" name="q87" value="a"> a) Planning</label>
+        <label><input type="radio" name="q87" value="b"> b) Analysis</label>
+        <label><input type="radio" name="q87" value="c"> c) Design</label>
+        <label><input type="radio" name="q87" value="d"> d) Implementation</label>
+    </div>
+    <div class="answer-box" id="answer87" data-correct-answer="c">Correct Answer: c) Design</div>
+</div>
+
+<div class="question">
+    <h3>5. Which would normally NOT be a reason for a project?</h3>
+    <div class="options">
+        <label><input type="radio" name="q88" value="a"> a) When a business need has been identified</label>
+        <label><input type="radio" name="q88" value="b"> b) A consultant has suggested a new customer relationship management system.</label>
+        <label><input type="radio" name="q88" value="c"> c) An open-source platform has just come on the market.</label>
+        <label><input type="radio" name="q88" value="d"> d) An existing system just isn’t working properly, and the workaround is tedious</label>
+    </div>
+    <div class="answer-box" id="answer88" data-correct-answer="c">Correct Answer: c) An open-source platform has just come on the market.</div>
+</div>
+
+<div class="question">
+    <h3>6. An example of a functional requirement is _________</h3>
+    <div class="options">
+        <label><input type="radio" name="q89" value="a"> a) Access to the customer order system</label>
+        <label><input type="radio" name="q89" value="b"> b) System should be available in English and Spanish</label>
+        <label><input type="radio" name="q89" value="c"> c) System can be accessed through a Blackberry device.</label>
+        <label><input type="radio" name="q89" value="d"> d) Output can be displayed in Internet Explorer</label>
+    </div>
+    <div class="answer-box" id="answer89" data-correct-answer="a">Correct Answer: a) Access to the customer order system</div>
+</div>
+
+<div class="question">
+    <h3>7. Which of the following is not a benefit of using source control?</h3>
+    <div class="options">
+        <label><input type="radio" name="q90" value="a"> a) Allows multiple developers to collaborate.</label>
+        <label><input type="radio" name="q90" value="b"> b) Keeps the project in a consistent state.</label>
+        <label><input type="radio" name="q90" value="c"> c) Reduces the need for a bug database.</label>
+        <label><input type="radio" name="q90" value="d"> d) Enables tracking changes and rollbacks</label>
+    </div>
+    <div class="answer-box" id="answer90" data-correct-answer="c">Correct Answer: c) Reduces the need for a bug database.</div>
+</div>
+
+<div class="question">
+    <h3>8. What is the significance of automated testing according to the Joel Test?</h3>
+    <div class="options">
+        <label><input type="radio" name="q91" value="a"> a) It eliminates the need for manual testing completely.</label>
+        <label><input type="radio" name="q91" value="b"> b) It helps improve morale among developers.</label>
+        <label><input type="radio" name="q91" value="c"> c) It minimizes integration risk and reduces low-quality code.</label>
+        <label><input type="radio" name="q91" value="d"> d) It provides a better user interface design.</label>
+    </div>
+    <div class="answer-box" id="answer91" data-correct-answer="c">Correct Answer: c) It minimizes integration risk and reduces low-quality code.</div>
+</div>
+
+<div class="question">
+    <h3>9. What is a key advantage of fixing bugs before writing new code?</h3>
+    <div class="options">
+        <label><input type="radio" name="q92" value="a"> a) It makes scheduling easier to understand and keep.</label>
+        <label><input type="radio" name="q92" value="b"> b) It allows more bugs to be accumulated for bulk fixing later.</label>
+        <label><input type="radio" name="q92" value="c"> c) It is less time-consuming than other methods.</label>
+        <label><input type="radio" name="q92" value="d"> d) It reduces the need for source control.</label>
+    </div>
+    <div class="answer-box" id="answer92" data-correct-answer="a">Correct Answer: a) It makes scheduling easier to understand and keep.</div>
+</div>
+
+<div class="question">
+    <h3>10. Which challenge is associated with teamwork?</h3>
+    <div class="options">
+        <label><input type="radio" name="q93" value="a"> a) Lack of tools</label>
+        <label><input type="radio" name="q93" value="b"> b) Effective communication and coordination</label>
+        <label><input type="radio" name="q93" value="c"> c) Limited project topics</label>
+        <label><input type="radio" name="q93" value="d"> d) Lack of programming languages</label>
+    </div>
+    <div class="answer-box" id="answer93" data-correct-answer="b">Correct Answer: b) Effective communication and coordination</div>
+</div>
+
+<div class="question">
+    <h3>11. What is Software Engineering primarily concerned with?</h3>
+    <div class="options">
+        <label><input type="radio" name="q94" value="a"> a) Only coding</label>
+        <label><input type="radio" name="q94" value="b"> b) Writing design documents</label>
+        <label><input type="radio" name="q94" value="c"> c) The complete process of specifying, designing, developing, analyzing, and maintaining a software system.</label>
+        <label><input type="radio" name="q94" value="d"> d) Debugging and maintaining software systems</label>
+    </div>
+    <div class="answer-box" id="answer94" data-correct-answer="c">Correct Answer: c) The complete process of specifying, designing, developing, analyzing, and maintaining a software system.</div>
+</div>
+
+<div class="question">
+    <h3>12. What is a key principle of Agile methodologies?</h3>
+    <div class="options">
+        <label><input type="radio" name="q95" value="a"> a) Following a strict plan</label>
+        <label><input type="radio" name="q95" value="b"> b) Avoiding changes once development starts</label>
+        <label><input type="radio" name="q95" value="c"> c) Continuous customer involvement</label>
+        <label><input type="radio" name="q95" value="d"> d) Extensive initial documentation</label>
+    </div>
+    <div class="answer-box" id="answer95" data-correct-answer="c">Correct Answer: c) Continuous customer involvement</div>
+</div>
+
+<div class="question">
+    <h3>13. Overall, the consistent notation, integration among the diagramming techniques, and application of the diagrams across the entire development process make ________ a powerful and flexible toolset for analysts and developers.</h3>
+    <div class="options">
+        <label><input type="radio" name="q96" value="a"> a) CASE</label>
+        <label><input type="radio" name="q96" value="b"> b) UML</label>
+        <label><input type="radio" name="q96" value="c"> c) DFDs</label>
+        <label><input type="radio" name="q96" value="d"> d) EPCs</label>
+    </div>
+    <div class="answer-box" id="answer96" data-correct-answer="b">Correct Answer: b) UML</div>
+</div>
+
+<div class="question">
+    <h3>14. The information gathering technique that enables the analyst to collect facts and opinions from a wide range of geographically dispersed people quickly and with the least expense is the _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q97" value="a"> a) Document analysis</label>
+        <label><input type="radio" name="q97" value="b"> b) Interview</label>
+        <label><input type="radio" name="q97" value="c"> c) Observation</label>
+        <label><input type="radio" name="q97" value="d"> d) Questionnaire</label>
+    </div>
+    <div class="answer-box" id="answer97" data-correct-answer="d">Correct Answer: d) Questionnaire</div>
+</div>
+
+<div class="question">
+    <h3>15. Each use case describes _____ function(s) in which users interact with the system.</h3>
+    <div class="options">
+        <label><input type="radio" name="q98" value="a"> a) One</label>
+        <label><input type="radio" name="q98" value="b"> b) One or more</label>
+        <label><input type="radio" name="q98" value="c"> c) Many</label>
+        <label><input type="radio" name="q98" value="d"> d) Zero, one, or more</label>
+    </div>
+    <div class="answer-box" id="answer98" data-correct-answer="a">Correct Answer: a) One</div>
+</div>
+
+<div class="question">
+    <h3>16. Which of the following diagramming symbols represents an actor in a use case diagram?</h3>
+    <div class="options">
+        <label><input type="radio" name="q99" value="a"> a) 🧍 (Actor Symbol)</label>
+        <label><input type="radio" name="q99" value="b"> b) ▭ (Rectangle)</label>
+        <label><input type="radio" name="q99" value="c"> c) ◯ (Ellipse)</label>
+        <label><input type="radio" name="q99" value="d"> d) ⬅ (Left Arrow)</label>
+    </div>
+    <div class="answer-box" id="answer99" data-correct-answer="a">Correct Answer: a) 🧍 (Actor Symbol)</div>
+</div>
+
+<div class="question">
+    <h3>17. A complex use case is one that has more than _____ unique transactions.</h3>
+    <div class="options">
+        <label><input type="radio" name="q100" value="a"> a) 3</label>
+        <label><input type="radio" name="q100" value="b"> b) 5</label>
+        <label><input type="radio" name="q100" value="c"> c) 9</label>
+        <label><input type="radio" name="q100" value="d"> d) 20</label>
+    </div>
+    <div class="answer-box" id="answer100" data-correct-answer="c">Correct Answer: c) 9</div>
+</div>
+
+<div class="question">
+    <h3>18. SCRUM belongs to the category of system development methodologies:</h3>
+    <div class="options">
+        <label><input type="radio" name="q101" value="a"> a) Agile development</label>
+        <label><input type="radio" name="q101" value="b"> b) Rapid application development</label>
+        <label><input type="radio" name="q101" value="c"> c) Structured design</label>
+        <label><input type="radio" name="q101" value="d"> d) Waterfall development</label>
+    </div>
+    <div class="answer-box" id="answer101" data-correct-answer="a">Correct Answer: a) Agile development</div>
+</div>
+
+<div class="question">
+    <h3>19. In SCRUM, teams organize themselves in a symbiotic manner and set their own goals for each ____________:</h3>
+    <div class="options">
+        <label><input type="radio" name="q102" value="a"> a) Phase</label>
+        <label><input type="radio" name="q102" value="b"> b) Week</label>
+        <label><input type="radio" name="q102" value="c"> c) Function</label>
+        <label><input type="radio" name="q102" value="d"> d) Sprint</label>
+    </div>
+    <div class="answer-box" id="answer102" data-correct-answer="d">Correct Answer: d) Sprint</div>
+</div>
+
+<div class="question">
+    <h3>20. The process of understanding how an information system can support business needs, designing the system, building it, and delivering it to users is the _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q103" value="a"> a) Analysis phase of the SDLC</label>
+        <label><input type="radio" name="q103" value="b"> b) Object-oriented approach</label>
+        <label><input type="radio" name="q103" value="c"> c) Rule for creating a CASE tool.</label>
+        <label><input type="radio" name="q103" value="d"> d) Systems development life cycle</label>
+    </div>
+    <div class="answer-box" id="answer103" data-correct-answer="d">Correct Answer: d) Systems development life cycle</div>
+</div>
+
+    <hr class="section-divider">
+	<div class="section-header">Midterm 2 Questions (1-19)</div>
+<div class="question">
+    <h3>1. In SCRUM, teams organize themselves in a symbiotic manner and set their own goals for each ______________:</h3>
+    <div class="options">
+        <label><input type="radio" name="q104" value="a"> a) Phase</label>
+        <label><input type="radio" name="q104" value="b"> b) Week</label>
+        <label><input type="radio" name="q104" value="c"> c) Function</label>
+        <label><input type="radio" name="q104" value="d"> d) Sprint</label>
+    </div>
+    <div class="answer-box" id="answer104" data-correct-answer="d">Correct Answer: d) Sprint</div>
+</div>
+
+<div class="question">
+    <h3>2. SCRUM belongs to the category of system development methodologies:</h3>
+    <div class="options">
+        <label><input type="radio" name="q105" value="a"> a) Agile development</label>
+        <label><input type="radio" name="q105" value="b"> b) Rapid application development</label>
+        <label><input type="radio" name="q105" value="c"> c) Structured design</label>
+        <label><input type="radio" name="q105" value="d"> d) Waterfall development</label>
+        <label><input type="radio" name="q105" value="e"> e) Rapid prototyping</label>
+    </div>
+    <div class="answer-box" id="answer105" data-correct-answer="a">Correct Answer: a) Agile development</div>
+</div>
+
+<div class="question">
+    <h3>3. The process of understanding how an information system can support business needs, design the system, build it, and deliver it to users is the _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q106" value="a"> a) Analysis phase of the SDLC</label>
+        <label><input type="radio" name="q106" value="b"> b) Object-oriented approach</label>
+        <label><input type="radio" name="q106" value="c"> c) Rule for creating a CASE tool</label>
+        <label><input type="radio" name="q106" value="d"> d) Systems development life cycle</label>
+        <label><input type="radio" name="q106" value="e"> e) Waterfall development methodology</label>
+    </div>
+    <div class="answer-box" id="answer106" data-correct-answer="d">Correct Answer: d) Systems development life cycle</div>
+</div>
+
+<div class="question">
+    <h3>4. The four phases of the Systems Development Life Cycle are _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q107" value="a"> a) Analysis, gathering, modeling, and diagramming</label>
+        <label><input type="radio" name="q107" value="b"> b) Construction, installation, testing, and converting</label>
+        <label><input type="radio" name="q107" value="c"> c) Initiating, planning, controlling, and implementing</label>
+        <label><input type="radio" name="q107" value="d"> d) Planning, analysis, design, and implementation</label>
+        <label><input type="radio" name="q107" value="e"> e) System request, feasibility, staffing, and construction</label>
+    </div>
+    <div class="answer-box" id="answer107" data-correct-answer="d">Correct Answer: d) Planning, analysis, design, and implementation</div>
+</div>
+
+<div class="question">
+    <h3>5. The project sponsor is the _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q108" value="a"> a) Lead systems analyst on the project team</label>
+        <label><input type="radio" name="q108" value="b"> b) Person or department that requested the system</label>
+        <label><input type="radio" name="q108" value="c"> c) Lead computer programmer charged with writing the code for the system</label>
+        <label><input type="radio" name="q108" value="d"> d) Project team leader in charge of developing the system</label>
+        <label><input type="radio" name="q108" value="e"> e) Any of the above may fill the role of the project sponsor</label>
+    </div>
+    <div class="answer-box" id="answer108" data-correct-answer="b">Correct Answer: b) Person or department that requested the system</div>
+</div>
+
+<div class="question">
+    <h3>6. In which phase of the SDLC is the system proposal developed?</h3>
+    <div class="options">
+        <label><input type="radio" name="q109" value="a"> a) Analysis</label>
+        <label><input type="radio" name="q109" value="b"> b) Design</label>
+        <label><input type="radio" name="q109" value="c"> c) Implementation</label>
+        <label><input type="radio" name="q109" value="d"> d) Planning</label>
+        <label><input type="radio" name="q109" value="e"> e) System delivery</label>
+    </div>
+    <div class="answer-box" id="answer109" data-correct-answer="a">Correct Answer: a) Analysis</div>
+</div>
+
+<div class="question">
+    <h3>7. The analysis phase of the SDLC answers which questions _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q110" value="a"> a) who will create the system and when will it be used</label>
+        <label><input type="radio" name="q110" value="b"> b) who will the system be for, what the system will do, when will it be used, and where will it be used</label>
+        <label><input type="radio" name="q110" value="c"> c) why build the system, what the system will be, and how the system will work</label>
+        <label><input type="radio" name="q110" value="d"> d) why build the system, who will the system be for, when will it be used, and how the system will work</label>
+        <label><input type="radio" name="q110" value="e"> e) why build the system, who will the system be for, when will it be used, and where will it be used</label>
+    </div>
+    <div class="answer-box" id="answer110" data-correct-answer="e">Correct Answer: e) why build the system, who will the system be for, when will it be used, and where will it be used</div>
+</div>
+
+<div class="question">
+    <h3>8. In which phase of the SDLC is the system specification developed?</h3>
+    <div class="options">
+        <label><input type="radio" name="q111" value="a"> a) Analysis</label>
+        <label><input type="radio" name="q111" value="b"> b) Design</label>
+        <label><input type="radio" name="q111" value="c"> c) Implementation</label>
+        <label><input type="radio" name="q111" value="d"> d) Planning</label>
+        <label><input type="radio" name="q111" value="e"> e) System Delivery</label>
+    </div>
+    <div class="answer-box" id="answer111" data-correct-answer="b">Correct Answer: b) Design</div>
+</div>
+
+<div class="question">
+    <h3>9. The principal disadvantages(s) with the waterfall development methodology is (are) _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q112" value="a"> a) A long time elapses between completion of the system proposal and the delivery of the system</label>
+        <label><input type="radio" name="q112" value="b"> b) If the team misses important requirements, expensive post-implementation programming may be needed</label>
+        <label><input type="radio" name="q112" value="c"> c) The design must be completely specified on paper before programming begins</label>
+        <label><input type="radio" name="q112" value="d"> d) All of the above</label>
+        <label><input type="radio" name="q112" value="e"> e) None of the above</label>
+    </div>
+    <div class="answer-box" id="answer112" data-correct-answer="d">Correct Answer: d) All of the above</div>
+</div>
+
+<div class="question">
+    <h3>10. _____ development is a structured design methodology that proceeds in a sequence from one phase to the next.</h3>
+    <div class="options">
+        <label><input type="radio" name="q113" value="a"> a) Parallel</label>
+        <label><input type="radio" name="q113" value="b"> b) Phased</label>
+        <label><input type="radio" name="q113" value="c"> c) Agile</label>
+        <label><input type="radio" name="q113" value="d"> d) Rapid Application</label>
+        <label><input type="radio" name="q113" value="e"> e) Waterfall</label>
+    </div>
+    <div class="answer-box" id="answer113" data-correct-answer="e">Correct Answer: e) Waterfall</div>
+</div>
+
+<div class="question">
+    <h3>11. Overall, the consistent notation, integration among the diagramming techniques, and application of the diagrams across the entire development process makes ________ a powerful and flexible toolset for analysts and developers.</h3>
+    <div class="options">
+        <label><input type="radio" name="q114" value="a"> a) CASE</label>
+        <label><input type="radio" name="q114" value="b"> b) UML</label>
+        <label><input type="radio" name="q114" value="c"> c) DFDs</label>
+        <label><input type="radio" name="q114" value="d"> d) EPCs</label>
+        <label><input type="radio" name="q114" value="e"> e) Flow Charts</label>
+    </div>
+    <div class="answer-box" id="answer114" data-correct-answer="b">Correct Answer: b) UML</div>
+</div>
+
+<div class="question">
+    <h3>12. _______ is an example of functional requirements.</h3>
+    <div class="options">
+        <label><input type="radio" name="q115" value="a"> a) The system should work with any web browser</label>
+        <label><input type="radio" name="q115" value="b"> b) The system should load any web page within 3 seconds</label>
+        <label><input type="radio" name="q115" value="c"> c) Customers should be able to see their orders after authentication</label>
+        <label><input type="radio" name="q115" value="d"> d) The system should comply with the company’s policy of buying all PCs and servers from Dell</label>
+        <label><input type="radio" name="q115" value="e"> e) The system should be able to search all available inventory in order to determine whether a product can be made by a given date</label>
+    </div>
+    <div class="answer-box" id="answer115" data-correct-answer="c">Correct Answer: c) Customers should be able to see their orders after authentication</div>
+</div>
+
+<div class="question">
+    <h3>13. During an interview, the following question is asked; “How many times during a typical week does a customer complain about inadequate service following a sale?” This question is an example of a (n) _____ question.</h3>
+    <div class="options">
+        <label><input type="radio" name="q116" value="a"> a) Opinion-generating</label>
+        <label><input type="radio" name="q116" value="b"> b) Eye-opening</label>
+        <label><input type="radio" name="q116" value="c"> c) Open-ended</label>
+        <label><input type="radio" name="q116" value="d"> d) Closed-ended</label>
+        <label><input type="radio" name="q116" value="e"> e) Probing</label>
+    </div>
+    <div class="answer-box" id="answer116" data-correct-answer="d">Correct Answer: d) Closed-ended</div>
+</div>
+
+<div class="question">
+    <h3>14. The information gathering technique that enables the analyst to collect facts and opinions from a wide range of geographically dispersed people quickly and with the least expense is the _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q117" value="a"> a) Document analysis</label>
+        <label><input type="radio" name="q117" value="b"> b) Interview</label>
+        <label><input type="radio" name="q117" value="c"> c) JAD session</label>
+        <label><input type="radio" name="q117" value="d"> d) Observation</label>
+        <label><input type="radio" name="q117" value="e"> e) Questionnaire</label>
+    </div>
+    <div class="answer-box" id="answer117" data-correct-answer="e">Correct Answer: e) Questionnaire</div>
+</div>
+
+<div class="question">
+    <h3>15. What information-gathering strategy enables the analyst to see the reality of the situation rather than listen to others describe it?</h3>
+    <div class="options">
+        <label><input type="radio" name="q118" value="a"> a) Document analysis</label>
+        <label><input type="radio" name="q118" value="b"> b) Interviewing</label>
+        <label><input type="radio" name="q118" value="c"> c) Joint application design (JAD) sessions</label>
+        <label><input type="radio" name="q118" value="d"> d) Observation</label>
+        <label><input type="radio" name="q118" value="e"> e) Questionnaires</label>
+    </div>
+    <div class="answer-box" id="answer118" data-correct-answer="d">Correct Answer: d) Observation</div>
+</div>
+
+<div class="question">
+    <h3>16. Each use case describes _____ function(s) in which users interact with the system.</h3>
+    <div class="options">
+        <label><input type="radio" name="q119" value="a"> a) One</label>
+        <label><input type="radio" name="q119" value="b"> b) One or more</label>
+        <label><input type="radio" name="q119" value="c"> c) Many</label>
+        <label><input type="radio" name="q119" value="d"> d) Zero, one, or more</label>
+        <label><input type="radio" name="q119" value="e"> e) All</label>
+    </div>
+    <div class="answer-box" id="answer119" data-correct-answer="a">Correct Answer: a) One</div>
+</div>
+
+<div class="question">
+    <h3>17. A complex use case is one that has more than _____ unique transactions.</h3>
+    <div class="options">
+        <label><input type="radio" name="q120" value="a"> a) 5</label>
+        <label><input type="radio" name="q120" value="b"> b) 7</label>
+        <label><input type="radio" name="q120" value="c"> c) 9</label>
+        <label><input type="radio" name="q120" value="d"> d) 10</label>
+        <label><input type="radio" name="q120" value="e"> e) 12</label>
+    </div>
+    <div class="answer-box" id="answer120" data-correct-answer="c">Correct Answer: c) 9</div>
+</div>
+
+<div class="question">
+    <h3>18. The correct sequence of the major steps in creating use case diagrams is _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q121" value="a"> a) Identify the major use cases, expand the major use cases, confirm the major use cases, create the use-case diagram</label>
+        <label><input type="radio" name="q121" value="b"> b) Identify the major use cases, expand the major use cases, create the use-case diagram, confirm the major use cases</label>
+        <label><input type="radio" name="q121" value="c"> c) Create the use-case diagram, identify the major use cases, expand the major use cases, confirm the major use cases</label>
+        <label><input type="radio" name="q121" value="d"> d) Create the use-case diagram, identify the major use cases, confirm the major use cases, expand the major use cases</label>
+        <label><input type="radio" name="q121" value="e"> e) Identify the major use cases, confirm the major use cases, expand the major use cases, create the use-case diagram</label>
+    </div>
+    <div class="answer-box" id="answer121" data-correct-answer="a">Correct Answer: a) Identify the major use cases, expand the major use cases, confirm the major use cases, create the use-case diagram</div>
+</div>
+
+<div class="question">
+    <h3>19. The importance level of a use case increases for all of the following characteristics of the use case EXCEPT _____.</h3>
+    <div class="options">
+        <label><input type="radio" name="q122" value="a"> a) The use case represents an important business process</label>
+        <label><input type="radio" name="q122" value="b"> b) The use case supports revenue generation</label>
+        <label><input type="radio" name="q122" value="c"> c) The technology is proven</label>
+        <label><input type="radio" name="q122" value="d"> d) The functionality is complex</label>
+        <label><input type="radio" name="q122" value="e"> e) The functionality is time-critical</label>
+    </div>
+    <div class="answer-box" id="answer122" data-correct-answer="c">Correct Answer: c) The technology is proven</div>
+</div>
+
+
+
+
+
+    </div>
+    <script>
+        function resetQuiz() {
+            const radioButtons = document.querySelectorAll('input[type="radio"]');
+            radioButtons.forEach(radio => radio.checked = false);
+
+            const answerBoxes = document.querySelectorAll('.answer-box');
+            answerBoxes.forEach(box => {
+                box.style.display = 'none';
+                box.classList.remove('correct', 'incorrect');
+                const correctAnswer = box.getAttribute('data-correct-answer');
+                if (correctAnswer) {
+                    box.textContent = `Correct Answer: ${box.dataset.correctAnswer}`;
+                }
+            });
+        }
+
+        function showAllAnswers() {
+    const answerBoxes = document.querySelectorAll('.answer-box');
+    answerBoxes.forEach(box => {
+        const [correctAnswer, explanation] = box.dataset.correctAnswer.split('|');
+        box.innerHTML = `Correct Answer: ${correctAnswer}${explanation ? `<br>${explanation}` : ''}`;
+        box.style.display = 'block';
+        box.classList.add('correct');
+    });
+}
+
+	function validateMultipleChoice(questionNumber) {
+    const checkboxes = document.querySelectorAll(`input[name="q${questionNumber}"]:checked`);
+    const selectedValues = Array.from(checkboxes).map(cb => cb.value).sort().join(",");
+    const answerBox = document.getElementById(`answer${questionNumber}`);
+    const correctAnswers = answerBox.dataset.correctAnswer.split(",").sort().join(",");
+
+    // Get the required number of correct answers
+    const requiredSelections = answerBox.dataset.correctAnswer.split(",").length;
+
+    // Only show result if the user has selected the required number of options
+    if (checkboxes.length >= requiredSelections) {
+        if (selectedValues === correctAnswers) {
+            answerBox.textContent = "Correct!";
+            answerBox.classList.add("correct");
+            answerBox.classList.remove("incorrect");
+        } else {
+            answerBox.textContent = `Incorrect. Correct Answers: ${answerBox.dataset.correctAnswer}`;
+            answerBox.classList.add("incorrect");
+            answerBox.classList.remove("correct");
+        }
+        answerBox.style.display = "block";
+    } else {
+        answerBox.style.display = "none"; // Hide answer box until enough choices are made
+    }
+}
+
+// Attach event listener to all checkboxes
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener("change", (e) => {
+        const questionNumber = e.target.name.substring(1);
+        validateMultipleChoice(questionNumber);
+    });
+});
+
+
+
+        function hideAllAnswers() {
+            const answerBoxes = document.querySelectorAll('.answer-box');
+            answerBoxes.forEach(box => {
+                box.style.display = 'none';
+                box.classList.remove('correct', 'incorrect');
+            });
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function scrollToBottom() {
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        const radioButtons = document.querySelectorAll('input[type="radio"]');
+radioButtons.forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        const questionNumber = e.target.name.substring(1);
+        const answerBox = document.getElementById(`answer${questionNumber}`);
+        const correctAnswerValue = answerBox.getAttribute('data-correct-answer');
+        const [correctAnswer, explanation] = correctAnswerValue.split('|');
+        const userAnswer = e.target.value;
+
+        if (userAnswer === correctAnswer) {
+            answerBox.innerHTML = `Correct!<br>${explanation || ''}`;
+            answerBox.classList.add('correct');
+            answerBox.classList.remove('incorrect');
+        } else {
+            answerBox.innerHTML = `Incorrect. Correct Answer: ${correctAnswer}${explanation ? `<br>${explanation}` : ''}`;
+            answerBox.classList.add('incorrect');
+            answerBox.classList.remove('correct');
+        }
+        answerBox.style.display = 'block';
+    });
+});
+
+function toggleTheme() {
+        const body = document.body;
+        const themeToggle = document.getElementById('themeToggle');
+        
+        if(body.getAttribute('data-theme') === 'dark') {
+            body.removeAttribute('data-theme');
+            themeToggle.innerHTML = '🌙 Dark Mode';
+            localStorage.setItem('theme', 'light');
+        } else {
+            body.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '☀️ Light Mode';
+            localStorage.setItem('theme', 'dark');
+        }
+    }
+
+    // Check for saved theme
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const themeToggle = document.getElementById('themeToggle');
+        
+        if(savedTheme === 'dark') {
+            document.body.setAttribute('data-theme', 'dark');
+            themeToggle.innerHTML = '☀️ Light Mode';
+        }
+    });
+    </script>
+</body>
+</html>
